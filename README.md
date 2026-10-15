@@ -12,12 +12,15 @@ The site is published at `https://aizuddinreborn.github.io/Zafran-Dashboard/` on
 
 ## Setup (one time, about 10 minutes)
 
-### 1. Add the script to your expense sheet
-1. Open your **Expense Tracker** Google Sheet on a computer.
-2. Go to **Extensions → Apps Script**.
-3. Delete everything in `Code.gs`, then paste in the whole of [`apps-script/Code.gs`](apps-script/Code.gs).
-4. At the top, in `CONFIG`, paste the link to your **budget sheet** into `BUDGET_SHEET`. That's the sheet with *Items | Expenses | Liabilities* and *Net Income*. Leave `EXPENSE_SHEET` blank.
-5. Click **Save**.
+### 1. Create a separate script for the dashboard
+> **Don't use the Apps Script your iPhone Shortcut already sends expenses to.** Pasting this code into that script would stop the Shortcut from logging. The dashboard needs its own project.
+
+1. On a computer, go to **[script.google.com](https://script.google.com)** and click **New project**. Name it **Expense Dashboard**.
+2. Delete everything in `Code.gs`, then paste in the whole of [`apps-script/Code.gs`](apps-script/Code.gs).
+3. At the top, in `CONFIG`:
+   - paste your **Expense Tracker** sheet's link into `EXPENSE_SHEET`;
+   - paste your **budget sheet**'s link into `BUDGET_SHEET`. That's the sheet with *Items | Expenses | Liabilities* and *Net Income*. If your budget is a tab inside the expense sheet, leave this blank.
+4. Click **Save**.
 
 ### 2. Check it can read your sheets
 1. In the function list at the top, choose **testSheets**, then click **Run**.
@@ -42,7 +45,7 @@ The site is published at `https://aizuddinreborn.github.io/Zafran-Dashboard/` on
 - The dashboard reads fresh data from your sheets each time you unlock it, and again when you come back to it after a minute away.
 
 ## Forgot your PIN?
-1. Open your expense sheet and go to **Extensions → Apps Script**.
+1. Go to [script.google.com](https://script.google.com) and open the **Expense Dashboard** project.
 2. Choose **resetPin** in the function list and click **Run**.
 3. Reload the dashboard and create a new PIN.
 
@@ -59,6 +62,10 @@ After editing `Code.gs`, go to **Deploy → Manage deployments**, click the penc
 
 ## “Can’t reach your sheet”?
 First, open your `/exec` link in a normal browser tab. It should show `{"ok":true,"app":"expense-dashboard","v":1}`.
+
+- **It shows something like `{"status":"ok","loggedAs":...}`**: that's the link your Shortcut logs to, not the dashboard's.
+  - Each visit to it may have added a blank Lain-lain / RM0 row, so delete those rows.
+  - Then do step 1 above in a new project and use that project's `/exec` link instead.
 
 - **It shows a Google sign-in page or "You need access"**: the access setting is wrong.
   1. Go to **Deploy → Manage deployments** and click the pencil icon.

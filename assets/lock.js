@@ -103,6 +103,7 @@ async function boot() {
   setMode('checking');
   try {
     const res = await api.call('status', {}, 30000);
+    if (res && res.app !== 'expense-dashboard' && (res.loggedAs || res.received || res.status)) throw new Error('logger');
     if (!res || !res.ok) throw new Error(res && res.error === 'server' ? 'server:' + (res.message || '') : (res && res.error) || 'bad');
     if (res.hasPin) {
       setMode('enter');
@@ -118,6 +119,7 @@ async function boot() {
 // Turns a failed connection into the likely fix in Apps Script
 function explain(code) {
   if (code === 'no_url') return '';
+  if (code === 'logger') return 'This is the link your iPhone Shortcut logs expenses to, not the dashboard’s script (it may have added a blank Lain-lain row — delete it). Make a separate project at script.google.com for the dashboard and use its /exec link.';
   if (code === 'blocked') return 'Google refused the request. In Apps Script open Deploy → Manage deployments → edit (pencil): set Execute as “Me” and Who has access “Anyone” (not “Anyone with Google account”), choose Version “New version”, then Deploy.';
   if (code === 'not_json') return 'The link answered, but not with this dashboard’s script. Save the pasted Code.gs, then Deploy → Manage deployments → edit → Version “New version” → Deploy.';
   if (code === 'timeout') return 'Your Apps Script took too long to answer. Try again in a moment.';

@@ -1,20 +1,21 @@
 /**
  * Expense Dashboard — the private link between your Google Sheets and the dashboard page.
  *
- * Paste this whole file into Apps Script (open your Expense Tracker sheet, then
- * Extensions → Apps Script), fill in CONFIG below, and deploy it as a web app
+ * Put this in its OWN Apps Script project: go to script.google.com → New project.
+ * Don't paste it into the script your iPhone Shortcut already sends expenses to,
+ * or the Shortcut will stop logging.
+ * Fill in CONFIG below, then deploy it as a web app
  * (Deploy → New deployment → Web app → Execute as: Me, Who has access: Anyone).
  *
  * Your sheets stay private. The page can only get your data after your 6-digit PIN
  * is checked here; the PIN is stored only as a salted hash in this script's properties.
  *
- * Forgot your PIN? Choose "resetPin" in the function list at the top and press Run.
+ * Forgot your PIN? In this project, choose "resetPin" in the function list at the top and press Run.
  * Then open the dashboard and create a new one. Your sheets aren't touched.
  */
 
 var CONFIG = {
-  // Leave blank when this script is opened from your Expense Tracker sheet
-  // (Extensions → Apps Script). Otherwise paste that sheet's link.
+  // Link to your Expense Tracker sheet (the one your Shortcut logs to).
   EXPENSE_SHEET: '',
   // Link to your budget sheet (the one with Items | Expenses | Liabilities and Net Income).
   // Leave blank if the budget is a tab inside the expense sheet.
