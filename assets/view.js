@@ -354,7 +354,7 @@ function drawBudgets(mo, cats, uses) {
           h('span', { class: 'xp-st-stack' },
             h('span', { class: 'st', style: { '--st': sv.left_over >= 0 ? 'var(--good)' : 'var(--critical)' } }, icon(sv.left_over >= 0 ? 'coins' : 'over'), h('span', { mark: ['savings', 'pct_left', sw], text: pctTxt(sv.pct_left) }), ' left'),
             S('totals').status === 'ok' && S('totals').data.find((t) => t.month === mo.month)
-              ? h('span', { class: 'xp-st-val' }, h('b', { mark: ['totals', 'spent', sw], text: RM(S('totals').data.find((t) => t.month === mo.month).spent) }), ' balance')
+              ? h('span', { class: 'xp-st-val' }, h('b', { mark: ['totals', 'spent', sw], text: RM(S('totals').data.find((t) => t.month === mo.month).spent) }), ' used')
               : null)));
     }
     const value = hasBudget
