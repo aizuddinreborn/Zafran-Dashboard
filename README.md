@@ -6,7 +6,7 @@ A dark, PIN-locked dashboard for an iPhone Shortcut expense tracker. The dashboa
 - **No API keys.** Nothing secret sits in this repo, and no money or data is stored here.
 - **Works like an app.** In Safari, use Share → Add to Home Screen.
 
-The site is published at `https://aizuddinreborn.github.io/zafran-dashboard/`.
+The site is published at `https://aizuddinreborn.github.io/Zafran-Dashboard/` once GitHub Pages is turned on (Settings → Pages → Deploy from a branch → `main` / root).
 
 ---
 
