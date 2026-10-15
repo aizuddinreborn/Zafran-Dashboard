@@ -103,7 +103,7 @@ async function boot() {
   setMode('checking');
   try {
     const res = await api.call('status', {}, 30000);
-    if (!res || !res.ok) throw new Error((res && res.error) || 'bad');
+    if (!res || !res.ok) throw new Error(res && res.error === 'server' ? 'server:' + (res.message || '') : (res && res.error) || 'bad');
     if (res.hasPin) {
       setMode('enter');
       if (res.wait_ms > 0) { pauseUntil = Date.now() + res.wait_ms; showPause(); }
@@ -111,8 +111,19 @@ async function boot() {
       setMode('create');
     }
   } catch (e) {
-    setMode('error', /no_url/.test(String(e && e.message)) ? '' : 'Your Apps Script didn’t answer.', 'bad');
+    setMode('error', explain(String(e && e.message)), 'bad');
   }
+}
+
+// Turns a failed connection into the likely fix in Apps Script
+function explain(code) {
+  if (code === 'no_url') return '';
+  if (code === 'blocked') return 'Google refused the request. In Apps Script open Deploy → Manage deployments → edit (pencil): set Execute as “Me” and Who has access “Anyone” (not “Anyone with Google account”), choose Version “New version”, then Deploy.';
+  if (code === 'not_json') return 'The link answered, but not with this dashboard’s script. Save the pasted Code.gs, then Deploy → Manage deployments → edit → Version “New version” → Deploy.';
+  if (code === 'timeout') return 'Your Apps Script took too long to answer. Try again in a moment.';
+  if (/^http_/.test(code)) return 'Google answered with error ' + code.slice(5) + '. Check the link is the Web app URL ending in /exec.';
+  if (/^server:/.test(code)) return 'Your Apps Script hit an error: ' + code.slice(7);
+  return 'Your Apps Script didn’t answer as expected (' + code + ').';
 }
 
 // ── Data ──

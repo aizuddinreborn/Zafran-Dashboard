@@ -56,3 +56,17 @@ After editing `Code.gs`, go to **Deploy → Manage deployments**, click the penc
 - **Categories (from the Shortcut):** Makan & Minum, Minyak Motor / Kereta, Keperluan, Telefon & Internet, Gajet, Lain-lain, Simpanan.
 - **Budget sheet:** a table headed **Items | Expenses | Liabilities**, plus a **Net Income** figure.
   - The Simpanan row shows Net Income minus all spending.
+
+## “Can’t reach your sheet”?
+First, open your `/exec` link in a normal browser tab. It should show `{"ok":true,"app":"expense-dashboard","v":1}`.
+
+- **It shows a Google sign-in page or "You need access"**: the access setting is wrong.
+  1. Go to **Deploy → Manage deployments** and click the pencil icon.
+  2. Set **Execute as: Me** and **Who has access: Anyone** (not "Anyone with Google account").
+  3. Set **Version: New version**, then click **Deploy**.
+- **It shows "Script function not found: doGet"**: the deployed version doesn't have the code yet.
+  1. Save `Code.gs`.
+  2. Go to **Deploy → Manage deployments** and click the pencil icon.
+  3. Set **Version: New version**, then click **Deploy**.
+- **It's a work or school Google account**: your organisation may block "Anyone" access. Use a personal Gmail account to own the script instead.
+- **The link ends in `/dev`**: that's the test link, which only works for you while you're signed in. Use the Web app URL that ends in `/exec`.

@@ -19,15 +19,22 @@ window.xpApi = (() => {
       const timer = setTimeout(() => ctl.abort(), timeoutMs || 45000);
       try {
         // text/plain keeps this a "simple" request, which Apps Script answers without a CORS preflight
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(Object.assign({ action }, body || {})),
-          redirect: 'follow',
-          signal: ctl.signal,
-        });
+        let res;
+        try {
+          res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(Object.assign({ action }, body || {})),
+            redirect: 'follow',
+            signal: ctl.signal,
+          });
+        } catch (e) {
+          // Aborted = no answer in time; otherwise the browser was refused (usually a sign-in page from Google)
+          throw new Error(e && e.name === 'AbortError' ? 'timeout' : 'blocked');
+        }
         if (!res.ok) throw new Error('http_' + res.status);
-        return await res.json();
+        const text = await res.text();
+        try { return JSON.parse(text); } catch (e) { throw new Error('not_json'); }
       } finally {
         clearTimeout(timer);
       }
