@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#070a12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Expenses">
+<title>Expense Dashboard</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
+<script src="assets/config.js"></script>
+<script src="assets/runtime.js"></script>
+<script src="assets/api.js"></script>
+</head>
+<body>
+<div id="dash-root">
+<div class="xp" id="top">
+<section class="xp-lock" id="lock" aria-labelledby="lock-title">
+  <div class="xp-lock-in">
+    <span class="xp-logo xp-lock-logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg></span>
+    <p class="xp-lock-kicker">Expense Dashboard</p>
+    <h1 class="xp-lock-title" id="lock-title">Checking your PIN</h1>
+    <p class="xp-lock-sub" id="lock-sub">One moment</p>
+    <div class="xp-dots is-wait" id="lock-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="xp-lock-msg" id="lock-msg" role="status" aria-live="polite"></p>
+    <div class="xp-keypad" id="keypad" role="group" aria-label="PIN keypad">
+      <button type="button" class="xp-key" data-key="1" aria-label="1"><b>1</b><small></small></button>
+      <button type="button" class="xp-key" data-key="2" aria-label="2"><b>2</b><small>ABC</small></button>
+      <button type="button" class="xp-key" data-key="3" aria-label="3"><b>3</b><small>DEF</small></button>
+      <button type="button" class="xp-key" data-key="4" aria-label="4"><b>4</b><small>GHI</small></button>
+      <button type="button" class="xp-key" data-key="5" aria-label="5"><b>5</b><small>JKL</small></button>
+      <button type="button" class="xp-key" data-key="6" aria-label="6"><b>6</b><small>MNO</small></button>
+      <button type="button" class="xp-key" data-key="7" aria-label="7"><b>7</b><small>PQRS</small></button>
+      <button type="button" class="xp-key" data-key="8" aria-label="8"><b>8</b><small>TUV</small></button>
+      <button type="button" class="xp-key" data-key="9" aria-label="9"><b>9</b><small>WXYZ</small></button>
+      <button type="button" class="xp-key xp-key-text" id="lock-left">Forgot?</button>
+      <button type="button" class="xp-key" data-key="0" aria-label="0"><b>0</b><small></small></button>
+      <button type="button" class="xp-key xp-key-text" id="lock-del" aria-label="Delete last digit"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h10.5A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5H9l-6-7 6-7z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></svg></button>
+    </div>
+    <button type="button" class="xp-retry" id="lock-retry" hidden>Try again</button>
+    <form class="xp-connect" id="lock-connect" hidden autocomplete="off">
+      <label class="xp-sr" for="lock-url">Apps Script web app link</label>
+      <input class="xp-urlin" id="lock-url" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" spellcheck="false" autocapitalize="off">
+      <button type="submit" class="xp-retry xp-connect-go">Connect</button>
+      <p class="xp-lock-help">Find it in Apps Script under Deploy → Manage deployments. This device remembers it.</p>
+    </form>
+    <button type="button" class="xp-linkbtn xp-relink" id="lock-relink" hidden>Use a different link</button>
+    <p class="xp-lock-help" id="lock-help" hidden>Open your Expense Tracker sheet, go to Extensions → Apps Script, choose <b>resetPin</b> in the function list and press Run. Then reload this page and create a new PIN. Your sheets aren’t touched.</p>
+  </div>
+</section>
+<div class="xp-app" id="app" hidden></div>
+<template id="app-tpl">
+<div class="xp-wrap">
+  <header class="xp-head">
+    <div class="xp-brand">
+      <span class="xp-logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg></span>
+      <div class="xp-brandtext">
+        <p class="xp-kicker">Personal spending</p>
+        <h1 class="xp-title" id="title">Expense Dashboard</h1>
+        <p class="xp-take" id="takeaway"><span class="dash-skeleton" data-source="totals">Reading your sheet</span></p>
+      </div>
+      <button type="button" class="xp-lockbtn" id="lock-now" aria-label="Lock the dashboard" title="Lock"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg></button>
+    </div>
+    <div class="xp-month" role="group" aria-label="Month">
+      <button type="button" class="xp-mbtn" id="prev-month" aria-label="Previous month" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <span class="xp-mlabel" id="month-label" data-source="months"><span class="dash-skeleton">Month</span></span>
+      <button type="button" class="xp-mbtn" id="next-month" aria-label="Next month" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+  </header>
+
+  <nav class="xp-nav" aria-label="Sections">
+    <a href="#overview" data-go="overview">Overview</a>
+    <a href="#budgets" data-go="budgets">Budgets</a>
+    <a href="#breakdown" data-go="breakdown">Where it goes</a>
+    <a href="#methods" data-go="methods">Card vs QR</a>
+    <a href="#burnup" data-go="burnup">Trends</a>
+    <a href="#activity" data-go="activity">Activity</a>
+  </nav>
+
+  <main class="xp-grid">
+    <section class="xp-card xp-hero" id="overview" aria-labelledby="overview-h" style="--i:0">
+      <h2 class="xp-sr" id="overview-h">This month</h2>
+      <div class="xp-hero-body" id="hero"><div class="xp-skel-hero"><span class="dash-skeleton xp-sk-l">Spent</span><span class="dash-skeleton xp-sk-xl">RM0.00</span><span class="dash-skeleton">entries</span></div></div>
+    </section>
+
+    <section class="xp-insights" id="insights" aria-label="Highlights" style="--i:1">
+      <div class="xp-ins"><span class="dash-skeleton">Highlight</span></div>
+      <div class="xp-ins"><span class="dash-skeleton">Highlight</span></div>
+      <div class="xp-ins"><span class="dash-skeleton">Highlight</span></div>
+    </section>
+
+    <section class="xp-card" id="budgets" aria-labelledby="budgets-h" style="--i:2">
+      <div class="xp-cardhead"><div><h2 id="budgets-h">Budgets</h2><p class="xp-note" id="budgets-note">This month against your budget plan</p></div><button type="button" class="xp-chipbtn" id="map-open">Match lines</button></div>
+      <div class="xp-body xp-minh-budgets" id="budget-list" data-source="categories budget_use savings"></div>
+    </section>
+
+    <section class="xp-card" id="burnup" aria-labelledby="burnup-h" style="--i:3">
+      <div class="xp-cardhead"><div><h2 id="burnup-h">Month so far</h2><p class="xp-note" id="burnup-note">Running total against a steady pace to your plan</p></div></div>
+      <div class="xp-legend" id="burnup-legend"></div>
+      <div class="xp-chart xp-minh-chart" id="burnup-chart" data-source="daily totals plan"></div>
+    </section>
+
+    <section class="xp-card" id="breakdown" aria-labelledby="breakdown-h" style="--i:4">
+      <div class="xp-cardhead"><div><h2 id="breakdown-h">Where it goes</h2><p class="xp-note">Share of this month's spending · tap a category to filter</p></div></div>
+      <div class="xp-body xp-donutwrap xp-minh-donut" id="donut" data-source="categories totals"></div>
+    </section>
+
+    <section class="xp-card" id="merchants" aria-labelledby="merchants-h" style="--i:5">
+      <div class="xp-cardhead"><div><h2 id="merchants-h">Top merchants &amp; items</h2><p class="xp-note" id="merchants-note">Biggest totals this month</p></div></div>
+      <div class="xp-body xp-minh-list" id="merchant-list" data-source="merchants"></div>
+    </section>
+
+    <section class="xp-card" id="lainlain" aria-labelledby="lainlain-h" style="--i:6">
+      <div class="xp-cardhead"><div><h2 id="lainlain-h">Inside Lain-lain</h2><p class="xp-note" id="lainlain-note">What the catch-all category was spent on</p></div></div>
+      <div class="xp-body xp-minh-list" id="lainlain-list" data-source="merchants categories"></div>
+    </section>
+
+    <section class="xp-card" id="methods" aria-labelledby="methods-h" style="--i:7">
+      <div class="xp-cardhead"><div><h2 id="methods-h">Card vs QR vs cash</h2><p class="xp-note">How this month was paid, from your Notes column</p></div></div>
+      <div class="xp-body xp-minh-list" id="method-list" data-source="methods"></div>
+    </section>
+
+    <section class="xp-card" id="calendar" aria-labelledby="calendar-h" style="--i:8">
+      <div class="xp-cardhead"><div><h2 id="calendar-h">Daily spending</h2><p class="xp-note">Brighter days cost more · tap a day for its entries</p></div></div>
+      <div class="xp-body xp-minh-cal" id="cal" data-source="daily"></div>
+      <div class="xp-daydetail" id="day-detail" aria-live="polite"></div>
+    </section>
+
+    <section class="xp-card" id="months" aria-labelledby="months-h" style="--i:9">
+      <div class="xp-cardhead"><div><h2 id="months-h">Month by month</h2><p class="xp-note">Total spent each month against your plan · tap a bar to open that month</p></div></div>
+      <div class="xp-legend" id="months-legend"></div>
+      <div class="xp-chart xp-minh-chart" id="month-chart" data-source="totals plan months"></div>
+    </section>
+
+    <section class="xp-card xp-wide" id="activity" aria-labelledby="activity-h" style="--i:10">
+      <div class="xp-cardhead"><div><h2 id="activity-h">Activity</h2><p class="xp-note" id="activity-note">Every entry this month, newest first</p></div></div>
+      <div class="xp-tools">
+        <input class="xp-search" id="search" type="search" placeholder="Search items, categories, payment" aria-label="Search entries" autocomplete="off">
+        <div class="xp-chips" id="cat-chips" role="group" aria-label="Filter by category"></div>
+      </div>
+      <div class="xp-tablebox">
+        <table class="xp-table" id="tx-table" data-source="expenses" data-row-key="sheet_row">
+          <thead><tr><th data-field="date">Date</th><th data-field="item">Item</th><th class="wide" data-field="category">Category</th><th class="wide" data-field="method">Paid with</th><th class="amt" data-field="amount">Amount</th></tr></thead>
+          <tbody id="tx-body"><tr><td colspan="5"><span class="dash-skeleton">Loading entries</span></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="xp-foot" id="foot">
+    <p id="foot-budgets" data-source="budgets"></p>
+    <p id="foot-check" data-source="checks"></p>
+    <p class="xp-foot-actions"><button type="button" class="xp-linkbtn" id="change-pin">Change PIN</button><span aria-hidden="true">·</span><button type="button" class="xp-linkbtn" id="lock-now-2">Lock now</button></p>
+  </footer>
+</div>
+</template>
+</div>
+</div>
+<script type="module" src="assets/calcs.js"></script>
+<script type="module" src="assets/view.js"></script>
+<script type="module" src="assets/budgetmap.js"></script>
+<script type="module" src="assets/lock.js"></script>
+</body>
+</html>
